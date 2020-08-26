@@ -18,6 +18,7 @@ exports.crearTarea = async(req, res) => {
         //Extraer el proyecto y comprobar si existe
         const { proyecto } = req.body;
 
+
         const existeProyecto = await Proyecto.findById(proyecto);
         if (!existeProyecto) {
             return res.status(404).json({ msg: 'Proyecto no encontrado' });
@@ -48,7 +49,7 @@ exports.obtenerTareas = async(req, res) => {
     try {
         //extrer proyecto
         //Extraer el proyecto y comprobar si existe
-        const { proyecto } = req.body;
+        const { proyecto } = req.query;
 
         const existeProyecto = await Proyecto.findById(proyecto);
         if (!existeProyecto) {
@@ -62,8 +63,8 @@ exports.obtenerTareas = async(req, res) => {
         }
 
         //obtener las tareas por proyecto, aqui hace como si es un where
-        const tareas = await Tarea.find({ proyecto }); //este lo agarramos de el destructuring de proyecto
-        res.status(200).json({ tareas })
+        const tareas = await Tarea.find({ proyecto }).sort({ creado: -1 }); //este lo agarramos de el destructuring de proyecto
+        res.status(200).json({ tareas }) //el sort para ordernar
 
 
     } catch (error) {
@@ -104,8 +105,8 @@ exports.actualizarTareas = async(req, res) => {
         const nuevaTarea = {}
 
         //si viene el nombre
-        if (nombre) nuevaTarea.nombre = nombre;
-        if (estado) nuevaTarea.estado = estado;
+        nuevaTarea.nombre = nombre;
+        nuevaTarea.estado = estado;
 
         //guardar la tarea
         tarea = await Tarea.findOneAndUpdate({ _id: req.params.id }, nuevaTarea, { new: true });
@@ -125,7 +126,7 @@ exports.eliminarTareas = async(req, res) => {
         //extrer proyecto
         //Extraer el proyecto y comprobar si existe
         //tiene quien lo creo
-        const { proyecto } = req.body;
+        const { proyecto } = req.query; //es query por que estoy pasando params
 
         //revisar si la tarea existe o no
         let tarea = await Tarea.findById(req.params.id);
